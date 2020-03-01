@@ -21,19 +21,20 @@ while len(p2name) < 1:
 
 # %%
 #def endgame_summation(*args), can try to do this to refactor better. 
-def endgame_summation(elements):
-    #for n in elements:
-        for n in np.nditer(elements):
-            if n == 3:
-                print("X wins!")
-                return True
-            elif n == 27:
-                print("O wins!")
-                return True
+def endgame_summation(elements, name1, name2):
+    '''This function sums columns, rows, and diagonals of board matrix'''
+    for n in np.nditer(elements):
+        if n == 3:
+            print(f"{name1} wins!")
+            return True
+        elif n == 27:
+            print(f"{name2} wins!")
+            return True
 
 
 # %%
 def endgame_check(checkboard, name1, name2):
+    '''This function checks for a win or tie'''
     board = copy.deepcopy(checkboard)
     board = [cell for cell in board if cell]
     for row in board:
@@ -51,18 +52,14 @@ def endgame_check(checkboard, name1, name2):
     diagsum = np.trace(board)
     antidiagsum = np.fliplr(board)
     antidiagsum = np.trace(antidiagsum)
-    #sumlist = [rowsum, colsum, diagsum, antidiagsum]
-    #REFACTOR BELOW, can make into a single function call? 
-    #endgame_summation(sumlist)
-    endgame_summation(rowsum)
-    endgame_summation(colsum)
-    endgame_summation(diagsum)
-    endgame_summation(antidiagsum)
+    sumlist = [rowsum, colsum, diagsum, antidiagsum]
+    for i in sumlist:
+        if endgame_summation(i, name1, name2):
+            return True
     if np.count_nonzero(board) == 9:
              print("Cats game! Meoww!!")
              return True
     return False
-    
 
 
 # %%
@@ -90,30 +87,37 @@ def cell_check(pmove, board):
 
 
 # %%
+def input_check(move,name1,name2):
+    '''this function initialized input, and makes sure it is valid'''
+    while len(move) != 2:
+            move = user_input(name1)
+            if move == True:
+                print(f"You have exited the game, thank you for playing {name1} and {name2}")
+                sys.exit(0)
+            move = cell_check(move, gameboard)
+    return move
+
+
+# %%
 def user_input(player):
     '''This function takes user input to make a move'''
     test = ["0","0"]
-   # try:
     while int(test[0]) not in range(1,3+1):
         while int(test[1]) not in range(1,3+1):
             userinput = input(f"{player} choose a tile[in the format row:column eg.11]:")
-            if len(userinput) == 2:
+            if len(userinput) == 2 and userinput.isnumeric():
                 test = list(userinput)
-                continue
             elif userinput.lower() == "exit":
                 return True
             else:
                 continue
     return "".join([str(a) for a in test])
-  #  except ValueError:
-   #     print("Oops!  That was no valid number.  Try again...")
 
 
 # %%
-# print(gameboard[0], gameboard[1], gameboard[2], sep='/n') -> may work in an IDE but not here. 
+#print(gameboard[0], gameboard[1], gameboard[2], sep='/n') -> may work in an IDE but not here. 
 while endgame == False:
     move = "0"
-    move2 = "0"
     endgame = endgame_check(gameboard, p1name, p2name)
     print("   1   2   3 ")
     print(f"1  {gameboard[0][0]} | {gameboard[0][1]} | {gameboard[0][2]} ")
@@ -121,26 +125,14 @@ while endgame == False:
     print(f"2  {gameboard[1][0]} | {gameboard[1][1]} | {gameboard[1][2]} ")
     print("  -----------")
     print(f"3  {gameboard[2][0]} | {gameboard[2][1]} | {gameboard[2][2]} ")
-    #Refactor this section to be ONE While loop (maybe break while out as a function).
     if playerturn == 1 and endgame == False:
-        while len(move) != 2:
-            move = user_input(p1name)
-            if move == True:
-                print(f"You have exited the game, thank you for playing {p1name} and {p2name}")
-                sys.exit(0)
-            move = cell_check(move, gameboard)
-        move_chosen(move)
+        move_chosen(input_check(move,p1name,p2name))
         playerturn = 2
-        continue
     elif playerturn == 2 and endgame == False:
-        while len(move2) != 2:
-            move2 = user_input(p2name)
-            if move2 == True:
-                print(f"You have exited the game, thank you for playing {p1name} and {p2name}")
-                sys.exit(0)
-            move2 = cell_check(move2, gameboard)
-        move_chosen(move2)
+        move_chosen(input_check(move,p2name,p1name))
         playerturn = 1
-        continue       
-        
+
+
+# %%
+
 
