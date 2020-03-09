@@ -2,6 +2,7 @@ from Blackjack_Packages.Card_Deck import choose_card
 """
 Using polymorphism below.
 """
+#BUYIN IS NOT WORKING CORRECTLY AFTER REFACTORING, ALSO NEED TO TEST BLACKJACK WIN TO MAKE SURE THE CORRECT WINNINGS ARE BEING DISTRIBUTED
 
 class Players:
     """
@@ -65,9 +66,7 @@ class Human(Players):
                 raise ValueError
             elif self.player_bet > self.bank:
                 print("Insufficient funds. Would you like to buy back in?")
-                self.bank = int(input("How much would you like to buy back in for(min. $20)?"))
-                if self.bank < 20:
-                    raise ValueError
+                self.buyIn()
         except:
             print("That is not a valid bet.")
             return True
@@ -109,7 +108,12 @@ class Human(Players):
         pass
 
     def buyIn(self):
-        pass
+        try:
+            self.bank = int(input("How much would you like to buy back in for(min. $20)?"))
+            if self.bank < 20:
+                raise ValueError
+        except:
+            print("Insufficient buy-in amount.")
         
     def settleBet(self):
         if Human.blackjack_flag == True:
