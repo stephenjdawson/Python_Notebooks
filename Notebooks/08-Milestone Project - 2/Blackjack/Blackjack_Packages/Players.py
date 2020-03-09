@@ -50,23 +50,31 @@ class Players:
         print(f"{self.player}'s hand: {self.cards}")
             
     def __str__(self):
-        return "Bank: %s, Player: %s" %(self.bank, self.player)
+        return "%s, Bank: $%s " %(self.player.upper(), self.bank )
 
 class Human(Players):
     """
     Human(bank, player)
     """    
+    blackjack_flag = False
+
     def bet(self, player_bet):
         try:
-            self.player_bet =int(player_bet)
-            if self.player_bet < 0:
+            self.player_bet = int(player_bet)
+            if self.player_bet < 20:
                 raise ValueError
+            elif self.player_bet > self.bank:
+                print("Insufficient funds. Would you like to buy back in?")
+                self.bank = int(input("How much would you like to buy back in for(min. $20)?"))
+                if self.bank < 20:
+                    raise ValueError
         except:
             print("That is not a valid bet.")
+            return True
         else:
+            self.player_bet = int(player_bet)
             self.bank = self.bank - self.player_bet
-
-        print(self.bank)
+            return False
 
     def check(self):
         summation = 0
@@ -93,19 +101,26 @@ class Human(Players):
             return False
         else:
             print(f"{self.player}: Blackjack! Winner Winner Chicken Dinner")
-            del(self.player_bet)
             Players.victory_flag = True
+            Human.blackjack_flag = True
             return False
 
     def doubleDown(self):
         pass
 
     def buyIn(self):
-        return "HERE"
+        pass
         
     def settleBet(self):
-        if Players.victory_flag == True:
+        if Human.blackjack_flag == True:
+            self.bank = self.bank + ((self.player_bet*2)*2)
+            print(f'{self.player} wins! You now have ${self.bank}')
+            del(self.player_bet)
+            Human.blackjack_flag = False
+        elif Players.victory_flag == True:
             self.bank = self.bank + (self.player_bet*2)
+            print(f'{self.player} wins! You now have ${self.bank}')
+            del(self.player_bet)
         else:
             return
         Players.victory_flag = False
@@ -122,7 +137,9 @@ class Human(Players):
 
     
 class Computer(Players):
-    """Dealer class"""
+    """
+    Dealer class
+    """
     def check(self):
         summation = 0
         ace_flag = 0
